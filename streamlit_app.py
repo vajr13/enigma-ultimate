@@ -62,12 +62,25 @@ st.subheader("Setel Posisi Rotor (1-26)")
 
 col1, col2, col3 = st.columns(3)
 
+# Mendefinisikan posisi rotor dengan session_state
+if 'rotor_pos1' not in st.session_state:
+    st.session_state.rotor_pos1 = 1
+if 'rotor_pos2' not in st.session_state:
+    st.session_state.rotor_pos2 = 2
+if 'rotor_pos3' not in st.session_state:
+    st.session_state.rotor_pos3 = 3
+
 with col1:
-    rotor_pos1 = st.number_input("Posisi Rotor 1", min_value=1, max_value=26, value=1, step=1)
+    rotor_pos1 = st.number_input("Posisi Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1, key="rotor_pos1")
 with col2:
-    rotor_pos2 = st.number_input("Posisi Rotor 2", min_value=1, max_value=26, value=2, step=1)
+    rotor_pos2 = st.number_input("Posisi Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1, key="rotor_pos2")
 with col3:
-    rotor_pos3 = st.number_input("Posisi Rotor 3", min_value=1, max_value=26, value=3, step=1)
+    rotor_pos3 = st.number_input("Posisi Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1, key="rotor_pos3")
+
+# Update posisi rotor dalam session_state
+st.session_state.rotor_pos1 = rotor_pos1
+st.session_state.rotor_pos2 = rotor_pos2
+st.session_state.rotor_pos3 = rotor_pos3
 
 # Plugboard
 if "plugboard" not in st.session_state:
@@ -125,9 +138,15 @@ cols = st.columns(13)
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
     if col.button(f"{char}", key=f"button_char_{char}"):
-        encrypted_char, rotor_pos1, rotor_pos2, rotor_pos3 = enigma_process(char, rotor_1, rotor_2, rotor_3, rotor_pos1, rotor_pos2, rotor_pos3, st.session_state.plugboard)
+        encrypted_char, rotor_pos1, rotor_pos2, rotor_pos3 = enigma_process(char, rotor_1, rotor_2, rotor_3, st.session_state.rotor_pos1, st.session_state.rotor_pos2, st.session_state.rotor_pos3, st.session_state.plugboard)
         message += encrypted_char
-        st.write(f"Pesan Terkini: {message}")
+        
+        # Update posisi rotor di session_state
+        st.session_state.rotor_pos1 = rotor_pos1
+        st.session_state.rotor_pos2 = rotor_pos2
+        st.session_state.rotor_pos3 = rotor_pos3
+
+        # Tampilkan posisi rotor yang diperbarui
         st.write(f"Posisi Rotor 1: {rotor_pos1}, Posisi Rotor 2: {rotor_pos2}, Posisi Rotor 3: {rotor_pos3}")
         time.sleep(0.1)  # Delay untuk mensimulasikan pergerakan
 
