@@ -60,15 +60,16 @@ st.info("Masukkan karakter satu per satu melalui tombol dan lihat pergerakan rot
 # Setel posisi rotor menggunakan slider
 st.subheader("Setel Posisi Rotor (1-26)")
 
-col1, col2, col3 = st.columns(3)
-
-# Mendefinisikan posisi rotor dengan session_state
+# Inisialisasi posisi rotor di session_state
 if 'rotor_pos1' not in st.session_state:
     st.session_state.rotor_pos1 = 1
 if 'rotor_pos2' not in st.session_state:
     st.session_state.rotor_pos2 = 2
 if 'rotor_pos3' not in st.session_state:
     st.session_state.rotor_pos3 = 3
+
+# Menggunakan slider untuk set posisi rotor, dengan nilai yang terhubung ke session_state
+col1, col2, col3 = st.columns(3)
 
 with col1:
     rotor_pos1 = st.number_input("Posisi Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1)
@@ -92,6 +93,7 @@ if "pending_pair" not in st.session_state:
 
 st.subheader("Plugboard: Klik dua huruf untuk memasangkan")
 
+# Menampilkan kolom untuk plugboard
 cols = st.columns(13)
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -147,7 +149,12 @@ for i, char in enumerate(alphabet):
         st.session_state.rotor_pos3 = rotor_pos3
 
         # Tampilkan posisi rotor yang diperbarui
-        st.write(f"Posisi Rotor 1: {rotor_pos1}, Posisi Rotor 2: {rotor_pos2}, Posisi Rotor 3: {rotor_pos3}")
+        st.session_state.rotor_pos1 = rotor_pos1
+        st.session_state.rotor_pos2 = rotor_pos2
+        st.session_state.rotor_pos3 = rotor_pos3
+
+        # Tampilkan posisi rotor yang diperbarui di atas
+        st.write(f"Posisi Rotor 1: {st.session_state.rotor_pos1}, Posisi Rotor 2: {st.session_state.rotor_pos2}, Posisi Rotor 3: {st.session_state.rotor_pos3}")
         time.sleep(0.1)  # Delay untuk mensimulasikan pergerakan
 
 # Menampilkan hasil enkripsi secara dinamis
