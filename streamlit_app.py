@@ -71,11 +71,11 @@ if 'rotor_pos3' not in st.session_state:
     st.session_state.rotor_pos3 = 3
 
 with col1:
-    rotor_pos1 = st.number_input("Posisi Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1, key="rotor_pos1")
+    rotor_pos1 = st.number_input("Posisi Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1)
 with col2:
-    rotor_pos2 = st.number_input("Posisi Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1, key="rotor_pos2")
+    rotor_pos2 = st.number_input("Posisi Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1)
 with col3:
-    rotor_pos3 = st.number_input("Posisi Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1, key="rotor_pos3")
+    rotor_pos3 = st.number_input("Posisi Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1)
 
 # Update posisi rotor dalam session_state
 st.session_state.rotor_pos1 = rotor_pos1
