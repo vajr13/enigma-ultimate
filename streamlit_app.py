@@ -26,17 +26,25 @@ def encrypt_character(char, rotor1, rotor2, rotor3, reflector, plugboard):
 
 def enigma_process(message, rotor1, rotor2, rotor3, rotor_pos1, rotor_pos2, rotor_pos3, plugboard):
     processed_message = ""
-    rotor1 = rotate(rotor1, rotor_pos1 - 1)
-    rotor2 = rotate(rotor2, rotor_pos2 - 1)
-    rotor3 = rotate(rotor3, rotor_pos3 - 1)
     for char in message:
         if char.isalpha():
             processed_message += encrypt_character(char.upper(), rotor1, rotor2, rotor3, reflector, plugboard)
-            rotor1 = rotate(rotor1, 1)
-    return processed_message
+            rotor_pos1 += 1
+            if rotor_pos1 > 26:
+                rotor_pos1 = 1
+                rotor_pos2 += 1
+                if rotor_pos2 > 26:
+                    rotor_pos2 = 1
+                    rotor_pos3 += 1
+                    if rotor_pos3 > 26:
+                        rotor_pos3 = 1
+            yield processed_message, rotor_pos1, rotor_pos2, rotor_pos3
+        else:
+            processed_message += char
+            yield processed_message, rotor_pos1, rotor_pos2, rotor_pos3
 
-st.title("Enigma Machine Project - 2C")
-st.info("Simulasi mesin Enigma. Gunakan Ctrl+Enter untuk memulai enkripsi/dekripsi.")
+st.title("Enigma Machine with Visible Rotor Movement")
+st.info("Simulasi mesin Enigma dengan pergerakan rotor terlihat langsung.")
 
 # Input pesan menggunakan text area
 message = st.text_area("Masukkan pesan (paragraf dapat dimasukkan di sini):", "", height=150)
@@ -47,16 +55,11 @@ st.subheader("Setel Posisi Rotor (1-26)")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.write("Rotor 1 Setting")
-    rotor_pos1 = st.number_input("", min_value=1, max_value=26, value=1, step=1, label_visibility="collapsed")
-
+    rotor_pos1 = st.number_input("Rotor 1", min_value=1, max_value=26, value=1, step=1)
 with col2:
-    st.write("Rotor 2 Setting")
-    rotor_pos2 = st.number_input("", min_value=1, max_value=26, value=2, step=1, label_visibility="collapsed")
-
+    rotor_pos2 = st.number_input("Rotor 2", min_value=1, max_value=26, value=2, step=1)
 with col3:
-    st.write("Rotor 3 Setting")
-    rotor_pos3 = st.number_input("", min_value=1, max_value=26, value=3, step=1, label_visibility="collapsed")
+    rotor_pos3 = st.number_input("Rotor 3", min_value=1, max_value=26, value=3, step=1)
 
 # Plugboard
 if "plugboard" not in st.session_state:
@@ -106,10 +109,17 @@ if st.button("Reset Plugboard"):
     st.session_state.selected_button = None
     st.write("Plugboard telah direset.")
 
-# Proses enkripsi/dekripsi menggunakan Ctrl+Enter
-if st.button("Proses (Ctrl+Enter untuk shortcut)"):
+# Proses enkripsi/dekripsi dengan pergerakan rotor terlihat
+if st.button("Proses"):
     if message:
-        processed_message = enigma_process(message, rotor_1, rotor_2, rotor_3, rotor_pos1, rotor_pos2, rotor_pos3, st.session_state.plugboard)
-        st.write("Pesan yang diproses:", processed_message)
+        progress = st.empty()
+        rotors_display = st.empty()
+        encrypted_message = ""
+        for step, (encrypted_message, pos1, pos2, pos3) in enumerate(enigma_process(message, rotor_1, rotor_2, rotor_3, rotor_pos1, rotor_pos2, rotor_pos3, st.session_state.plugboard)):
+            rotors_display.write(f"Posisi Rotor: Rotor 1 = {pos1}, Rotor 2 = {pos2}, Rotor 3 = {pos3}")
+            progress.write(f"Proses: {encrypted_message}")
+            time.sleep(0.1)  # Delay untuk mensimulasikan pergerakan
+        st.success("Proses selesai!")
+        st.write("Pesan yang diproses:", encrypted_message)
     else:
         st.warning("Masukkan pesan terlebih dahulu!")
