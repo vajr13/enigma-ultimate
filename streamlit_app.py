@@ -63,18 +63,11 @@ if "rotor_pos3" not in st.session_state:
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    rotor_pos1 = st.number_input("Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1)
+    st.write(f"Rotor 1: {st.session_state.rotor_pos1}")
 with col2:
-    rotor_pos2 = st.number_input("Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1)
+    st.write(f"Rotor 2: {st.session_state.rotor_pos2}")
 with col3:
-    rotor_pos3 = st.number_input("Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1)
-
-# Button untuk menyetel posisi rotor
-if st.button("Set Rotor"):
-    st.session_state.rotor_pos1 = rotor_pos1
-    st.session_state.rotor_pos2 = rotor_pos2
-    st.session_state.rotor_pos3 = rotor_pos3
-    st.write("Posisi rotor telah disetel!")
+    st.write(f"Rotor 3: {st.session_state.rotor_pos3}")
 
 # Plugboard
 if "plugboard" not in st.session_state:
@@ -124,7 +117,16 @@ if st.button("Reset Plugboard"):
     st.session_state.selected_button = None
     st.write("Plugboard telah direset.")
 
-# Proses enkripsi/dekripsi dengan pergerakan rotor terlihat
+# Buat tombol untuk tiap karakter A-Z
+st.subheader("Masukkan Karakter")
+
+button_columns = st.columns(13)
+for i, char in enumerate(alphabet):
+    col = button_columns[i % 13]
+    if col.button(f"{char}"):
+        message += char  # Menambahkan karakter yang dipilih ke pesan
+
+# Tombol untuk memulai enkripsi
 if st.button("Proses"):
     if message:
         progress = st.empty()
