@@ -26,7 +26,7 @@ def encrypt_character(char, rotor1, rotor2, rotor3, reflector, plugboard):
     char = plugboard_swap(char, plugboard)
     return char
 
-# Inisialisasi State untuk Rotor, Plugboard, dan Pesan
+# Inisialisasi State
 if "rotor_pos1" not in st.session_state:
     st.session_state.rotor_pos1 = 1
 if "rotor_pos2" not in st.session_state:
@@ -37,6 +37,10 @@ if "processed_message" not in st.session_state:
     st.session_state.processed_message = ""
 if "plugboard" not in st.session_state:
     st.session_state.plugboard = {}
+if "selected_button" not in st.session_state:
+    st.session_state.selected_button = None
+if "pending_pair" not in st.session_state:
+    st.session_state.pending_pair = None
 
 # Fungsi untuk Memproses Satu Karakter
 def process_character(char):
@@ -61,54 +65,66 @@ def process_character(char):
                 st.session_state.rotor_pos3 = 1
 
 # Judul
-st.title("Enigma Machine with Real-Time Rotor Monitoring")
+st.title("Enigma Machine with Integrated Rotor Input and Monitoring")
 
-# Setel Posisi Rotor Awal
-st.subheader("Setel Posisi Awal Rotor (1-26)")
+# Setel dan Monitoring Posisi Rotor (dalam satu tempat)
+st.subheader("Setel dan Monitoring Posisi Rotor (1-26)")
 col1, col2, col3 = st.columns(3)
 with col1:
     st.number_input("Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1, key="rotor_input1")
+    st.markdown(f"**Posisi Saat Ini: {st.session_state.rotor_pos1}**")
 with col2:
     st.number_input("Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1, key="rotor_input2")
+    st.markdown(f"**Posisi Saat Ini: {st.session_state.rotor_pos2}**")
 with col3:
     st.number_input("Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1, key="rotor_input3")
+    st.markdown(f"**Posisi Saat Ini: {st.session_state.rotor_pos3}**")
 
 if st.button("Set Posisi Rotor"):
     st.session_state.rotor_pos1 = st.session_state.rotor_input1
     st.session_state.rotor_pos2 = st.session_state.rotor_input2
     st.session_state.rotor_pos3 = st.session_state.rotor_input3
 
-# Monitoring Posisi Rotor
-st.subheader("Monitoring Posisi Rotor")
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown("### Rotor 1")
-    st.write(st.session_state.rotor_pos1)
-with col2:
-    st.markdown("### Rotor 2")
-    st.write(st.session_state.rotor_pos2)
-with col3:
-    st.markdown("### Rotor 3")
-    st.write(st.session_state.rotor_pos3)
-
 # Konfigurasi Plugboard
-st.subheader("Konfigurasi Plugboard (Opsional)")
-plugboard_input = st.text_input("Masukkan pasangan plugboard (contoh: AB, CD, EF)", "")
-if st.button("Set Plugboard"):
-    plugboard = {}
-    for pair in plugboard_input.split(","):
-        pair = pair.strip().upper()
-        if len(pair) == 2:
-            plugboard[pair[0]] = pair[1]
-            plugboard[pair[1]] = pair[0]
-    st.session_state.plugboard = plugboard
-st.write("Plugboard saat ini:", st.session_state.plugboard)
+st.subheader("Konfigurasi Plugboard: Klik Dua Huruf untuk Memasangkan")
+cols = st.columns(13)
+alphabet = string.ascii_uppercase
+
+for i, char in enumerate(alphabet):
+    col = cols[i % 13]
+
+    paired_char = st.session_state.plugboard.get(char, "")
+    col.markdown(f"<div style='text-align: center; font-size: 1.5em;'>{paired_char}</div>", unsafe_allow_html=True)
+
+    if col.button(f"{char}", key=f"button_{char}"):
+        if st.session_state.selected_button is None:
+            st.session_state.selected_button = char
+        elif st.session_state.selected_button == char:
+            st.session_state.selected_button = None
+        else:
+            char1 = st.session_state.selected_button
+            char2 = char
+            st.session_state.pending_pair = (char1, char2)
+            st.session_state.selected_button = None
+
+if st.session_state.pending_pair:
+    char1, char2 = st.session_state.pending_pair
+    if char1 in st.session_state.plugboard:
+        del st.session_state.plugboard[st.session_state.plugboard[char1]]
+        del st.session_state.plugboard[char1]
+    if char2 in st.session_state.plugboard:
+        del st.session_state.plugboard[st.session_state.plugboard[char2]]
+        del st.session_state.plugboard[char2]
+    st.session_state.plugboard[char1] = char2
+    st.session_state.plugboard[char2] = char1
+    st.session_state.pending_pair = None
+
+if st.button("Reset Plugboard"):
+    st.session_state.plugboard.clear()
 
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
 cols = st.columns(13)
-alphabet = string.ascii_uppercase
-
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
     if col.button(char):
@@ -120,8 +136,7 @@ if st.button("Reset Rotor dan Pesan"):
     st.session_state.rotor_pos2 = 1
     st.session_state.rotor_pos3 = 1
     st.session_state.processed_message = ""
-    st.session_state.plugboard = {}
 
-# Tampilkan Pesan Hasil Enkripsi
+# Tampilkan Pesan Terenkripsi
 st.subheader("Pesan Terenkripsi")
 st.write(st.session_state.processed_message)
