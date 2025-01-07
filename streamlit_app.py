@@ -38,31 +38,24 @@ def encrypt_character(char, rotor1, rotor2, rotor3, reflector, plugboard, rotor_
     return char
 
 # Fungsi untuk melakukan proses enkripsi
-def enigma_process(message, rotor1, rotor2, rotor3, rotor_pos1, rotor_pos2, rotor_pos3, plugboard):
+def enigma_process(character, rotor1, rotor2, rotor3, rotor_pos1, rotor_pos2, rotor_pos3, plugboard):
     processed_message = ""
-    for char in message:
-        if char.isalpha():
-            processed_message += encrypt_character(char.upper(), rotor1, rotor2, rotor3, reflector, plugboard, rotor_pos1, rotor_pos2, rotor_pos3)
-            rotor_pos1 += 1
-            if rotor_pos1 > 26:
-                rotor_pos1 = 1
-                rotor_pos2 += 1
-                if rotor_pos2 > 26:
-                    rotor_pos2 = 1
-                    rotor_pos3 += 1
-                    if rotor_pos3 > 26:
-                        rotor_pos3 = 1
-            yield processed_message, rotor_pos1, rotor_pos2, rotor_pos3
-        else:
-            processed_message += char
-            yield processed_message, rotor_pos1, rotor_pos2, rotor_pos3
+    if character.isalpha():
+        processed_message += encrypt_character(character.upper(), rotor1, rotor2, rotor3, reflector, plugboard, rotor_pos1, rotor_pos2, rotor_pos3)
+        rotor_pos1 += 1
+        if rotor_pos1 > 26:
+            rotor_pos1 = 1
+            rotor_pos2 += 1
+            if rotor_pos2 > 26:
+                rotor_pos2 = 1
+                rotor_pos3 += 1
+                if rotor_pos3 > 26:
+                    rotor_pos3 = 1
+    return processed_message, rotor_pos1, rotor_pos2, rotor_pos3
 
 # Streamlit UI
-st.title("Simulasi Mesin Enigma")
-st.info("Simulasi mesin Enigma dengan pergerakan rotor yang terlihat.")
-
-# Input pesan menggunakan text area
-message = st.text_area("Masukkan pesan:", "", height=150)
+st.title("Simulasi Mesin Enigma dengan Input Tombol")
+st.info("Masukkan karakter satu per satu melalui tombol dan lihat pergerakan rotor.")
 
 # Setel posisi rotor menggunakan slider
 st.subheader("Setel Posisi Rotor (1-26)")
@@ -124,17 +117,19 @@ if st.button("Reset Plugboard"):
     st.session_state.selected_button = None
     st.write("Plugboard telah direset.")
 
-# Proses enkripsi/dekripsi dengan pergerakan rotor terlihat
-if st.button("Proses"):
-    if message:
-        progress = st.empty()
-        rotors_display = st.empty()
-        encrypted_message = ""
-        for step, (encrypted_message, pos1, pos2, pos3) in enumerate(enigma_process(message, rotor_1, rotor_2, rotor_3, rotor_pos1, rotor_pos2, rotor_pos3, st.session_state.plugboard)):
-            rotors_display.write(f"Posisi Rotor: Rotor 1 = {pos1}, Rotor 2 = {pos2}, Rotor 3 = {pos3}")
-            progress.write(f"Proses: {encrypted_message}")
-            time.sleep(0.1)  # Delay untuk mensimulasikan pergerakan
-        st.success("Proses selesai!")
-        st.write("Pesan yang diproses:", encrypted_message)
-    else:
-        st.warning("Masukkan pesan terlebih dahulu!")
+# Tampilan input tombol untuk karakter
+st.subheader("Masukkan Karakter (Klik Tombol)")
+message = ""
+
+cols = st.columns(13)
+for i, char in enumerate(alphabet):
+    col = cols[i % 13]
+    if col.button(f"{char}", key=f"button_char_{char}"):
+        encrypted_char, rotor_pos1, rotor_pos2, rotor_pos3 = enigma_process(char, rotor_1, rotor_2, rotor_3, rotor_pos1, rotor_pos2, rotor_pos3, st.session_state.plugboard)
+        message += encrypted_char
+        st.write(f"Pesan Terkini: {message}")
+        st.write(f"Posisi Rotor 1: {rotor_pos1}, Posisi Rotor 2: {rotor_pos2}, Posisi Rotor 3: {rotor_pos3}")
+        time.sleep(0.1)  # Delay untuk mensimulasikan pergerakan
+
+# Menampilkan hasil enkripsi secara dinamis
+st.write(f"Pesan yang diproses: {message}")
