@@ -46,9 +46,6 @@ def enigma_process(message, rotor1, rotor2, rotor3, rotor_pos1, rotor_pos2, roto
 st.title("Enigma Machine with Visible Rotor Movement")
 st.info("Simulasi mesin Enigma dengan pergerakan rotor terlihat langsung.")
 
-# Input pesan menggunakan text area
-message = st.text_area("Masukkan pesan (paragraf dapat dimasukkan di sini):", "", height=150)
-
 # Tampilan rotor seperti gambar (dengan tombol +/-)
 st.subheader("Setel Posisi Rotor (1-26)")
 
@@ -117,22 +114,25 @@ if st.button("Reset Plugboard"):
     st.session_state.selected_button = None
     st.write("Plugboard telah direset.")
 
-# Buat tombol untuk tiap karakter A-Z
+# Menampilkan tombol untuk tiap karakter A-Z
 st.subheader("Masukkan Karakter")
 
+# Tombol untuk setiap karakter
 button_columns = st.columns(13)
 for i, char in enumerate(alphabet):
     col = button_columns[i % 13]
     if col.button(f"{char}"):
-        message += char  # Menambahkan karakter yang dipilih ke pesan
+        if "message" not in st.session_state:
+            st.session_state.message = ""
+        st.session_state.message += char  # Tambahkan karakter ke pesan
 
 # Tombol untuk memulai enkripsi
 if st.button("Proses"):
-    if message:
+    if st.session_state.message:
         progress = st.empty()
         rotors_display = st.empty()
         encrypted_message = ""
-        for step, (encrypted_message, pos1, pos2, pos3) in enumerate(enigma_process(message, rotor_1, rotor_2, rotor_3, st.session_state.rotor_pos1, st.session_state.rotor_pos2, st.session_state.rotor_pos3, st.session_state.plugboard)):
+        for step, (encrypted_message, pos1, pos2, pos3) in enumerate(enigma_process(st.session_state.message, rotor_1, rotor_2, rotor_3, st.session_state.rotor_pos1, st.session_state.rotor_pos2, st.session_state.rotor_pos3, st.session_state.plugboard)):
             rotors_display.write(f"Posisi Rotor: Rotor 1 = {pos1}, Rotor 2 = {pos2}, Rotor 3 = {pos3}")
             progress.write(f"Proses: {encrypted_message}")
             time.sleep(0.1)  # Delay untuk mensimulasikan pergerakan
