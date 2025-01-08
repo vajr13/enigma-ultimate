@@ -111,12 +111,14 @@ def delete_last_character():
 
 # Fungsi untuk Mengunci/Membuka Kunci
 def toggle_lock():
-    st.session_state.is_locked = not st.session_state.is_locked
-    if not st.session_state.is_locked:
+    if st.session_state.is_locked:
+        st.session_state.is_locked = False
         st.session_state.input_message = ""
         st.session_state.output_message = ""
         st.session_state.is_first_input = True
         st.session_state.is_first_delete = True
+    else:
+        st.session_state.is_locked = True
 
 # Judul
 st.title("Enigma Machine with Correct Rotor Movement")
@@ -152,9 +154,13 @@ for i, char in enumerate(alphabet):
     col = cols[i % 13]
     if char in st.session_state.plugboard:
         pair_char = st.session_state.plugboard[char]
-        color = plugboard_colors[alphabet.index(pair_char)]
+        if pair_char in alphabet:
+            color = plugboard_colors[alphabet.index(pair_char)]
+        else:
+            color = "gray"
     else:
         color = "white"
+
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
@@ -163,10 +169,14 @@ for i, char in enumerate(alphabet):
                 st.session_state.plugboard[a] = b
                 st.session_state.plugboard[b] = a
                 st.session_state.selected_plugboard = []
-    col.markdown(f"<div style='background-color: {color}; text-align: center;'>{char}</div>", unsafe_allow_html=True)
+    col.markdown(
+        f"<div style='background-color: {color}; text-align: center;'>{char}</div>",
+        unsafe_allow_html=True,
+    )
 
 if not st.session_state.is_locked and st.button("Reset Plugboard"):
     st.session_state.plugboard.clear()
+    st.session_state.selected_plugboard = []
 
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
