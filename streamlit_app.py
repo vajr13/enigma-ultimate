@@ -134,7 +134,8 @@ cols = st.columns(13)
 alphabet = string.ascii_uppercase
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    color = next((plugboard_colors[i] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
+    pair = next(((k, v) for k, v in st.session_state.plugboard.items() if k == char or v == char), None)
+    color = plugboard_colors[i % len(plugboard_colors)] if pair else "white"
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
