@@ -46,13 +46,30 @@ if "output_message" not in st.session_state:
     st.session_state.output_message = ""
 if "plugboard" not in st.session_state:
     st.session_state.plugboard = {}
-if "selected_plugboard" not in st.session_state:
-    st.session_state.selected_plugboard = []
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
+if "selected_plugboard" not in st.session_state:
+    st.session_state.selected_plugboard = []
+if "is_first_input" not in st.session_state:
+    st.session_state.is_first_input = True
+if "is_first_delete" not in st.session_state:
+    st.session_state.is_first_delete = True
 
 # Fungsi untuk Memproses Satu Karakter
 def process_character(char):
+    # Naikkan rotor 1 sebelum memproses karakter jika ini input pertama
+    if st.session_state.is_first_input:
+        st.session_state.rotor_pos1 += 1
+        if st.session_state.rotor_pos1 > 26:
+            st.session_state.rotor_pos1 = 1
+            st.session_state.rotor_pos2 += 1
+            if st.session_state.rotor_pos2 > 26:
+                st.session_state.rotor_pos2 = 1
+                st.session_state.rotor_pos3 += 1
+                if st.session_state.rotor_pos3 > 26:
+                    st.session_state.rotor_pos3 = 1
+        st.session_state.is_first_input = False
+
     # Enkripsi karakter
     rotor1 = rotate(rotor_1, st.session_state.rotor_pos1 - 1)
     rotor2 = rotate(rotor_2, st.session_state.rotor_pos2 - 1)
@@ -79,37 +96,44 @@ def process_character(char):
 # Fungsi untuk Menghapus Karakter Terakhir
 def delete_last_character():
     if st.session_state.input_message:
+        # Pastikan rotor bergerak turun hanya jika karakter sudah diinput sebelumnya
+        if st.session_state.is_first_delete:
+            st.session_state.is_first_delete = False
+        else:
+            st.session_state.rotor_pos1 -= 1
+            if st.session_state.rotor_pos1 < 1:
+                st.session_state.rotor_pos1 = 26
+                st.session_state.rotor_pos2 -= 1
+                if st.session_state.rotor_pos2 < 1:
+                    st.session_state.rotor_pos2 = 26
+                    st.session_state.rotor_pos3 -= 1
+                    if st.session_state.rotor_pos3 < 1:
+                        st.session_state.rotor_pos3 = 26
+
         st.session_state.input_message = st.session_state.input_message[:-1]
         st.session_state.output_message = st.session_state.output_message[:-1]
 
-        st.session_state.rotor_pos1 -= 1
-        if st.session_state.rotor_pos1 < 1:
-            st.session_state.rotor_pos1 = 26
-            st.session_state.rotor_pos2 -= 1
-            if st.session_state.rotor_pos2 < 1:
-                st.session_state.rotor_pos2 = 26
-                st.session_state.rotor_pos3 -= 1
-                if st.session_state.rotor_pos3 < 1:
-                    st.session_state.rotor_pos3 = 26
-
 # Fungsi untuk Mengunci/Membuka Kunci
 def toggle_lock():
-    st.session_state.is_locked = not st.session_state.is_locked
-    if not st.session_state.is_locked:
+    if st.session_state.is_locked:
+        st.session_state.is_locked = False
         st.session_state.input_message = ""
         st.session_state.output_message = ""
-        st.session_state.rotor_pos1 = 1
-        st.session_state.rotor_pos2 = 1
-        st.session_state.rotor_pos3 = 1
-        st.session_state.plugboard = {}
-        st.session_state.selected_plugboard = []
+        st.session_state.is_first_input = True
+        st.session_state.is_first_delete = True
+    else:
+        st.session_state.is_locked = True
 
 # Judul
-st.title("Enigma Machine with Immediate Display Update")
+st.title("Enigma Machine with Correct Rotor Movement")
 
 # Tombol Lock/Unlock
-if st.button("Lock/Unlock Machine"):
-    toggle_lock()
+if st.session_state.is_locked:
+    if st.button("Unlock Machine"):
+        toggle_lock()
+else:
+    if st.button("Lock Machine"):
+        toggle_lock()
 
 # Setel dan Monitoring Posisi Rotor
 st.subheader("Setel dan Monitoring Posisi Rotor (1-26)")
@@ -139,7 +163,7 @@ for i, char in enumerate(alphabet):
     else:
         color = "white"
     if not st.session_state.is_locked:
-        if col.button(char):
+        if col.button(char, key=f"plugboard_{char}"):
             st.session_state.selected_plugboard.append(char)
             if len(st.session_state.selected_plugboard) == 2:
                 a, b = st.session_state.selected_plugboard
@@ -154,13 +178,14 @@ if not st.session_state.is_locked and st.button("Reset Plugboard"):
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
 cols = st.columns(13)
-for i, char in enumerate(alphabet):
-    col = cols[i % 13]
-    if col.button(char) and not st.session_state.is_locked:
-        process_character(char)
+if st.session_state.is_locked:
+    for i, char in enumerate(alphabet):
+        col = cols[i % 13]
+        if col.button(char, key=f"input_{char}"):
+            process_character(char)
 
 # Tombol Hapus
-if st.button("Hapus Karakter Terakhir") and not st.session_state.is_locked:
+if st.button("Hapus Karakter Terakhir"):
     delete_last_character()
 
 # Pesan Input dan Output
