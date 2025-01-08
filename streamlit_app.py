@@ -35,11 +35,11 @@ def encrypt_character(char, rotor1, rotor2, rotor3, reflector, plugboard):
 
 # Inisialisasi State
 if "rotor_pos1" not in st.session_state:
-    st.session_state.rotor_pos1 = 0  # Dimulai dari 0 agar bergerak di input pertama
+    st.session_state.rotor_pos1 = 1  # Dimulai dari 1 agar bergerak di input pertama
 if "rotor_pos2" not in st.session_state:
-    st.session_state.rotor_pos2 = 0
+    st.session_state.rotor_pos2 = 1
 if "rotor_pos3" not in st.session_state:
-    st.session_state.rotor_pos3 = 0
+    st.session_state.rotor_pos3 = 1
 if "input_message" not in st.session_state:
     st.session_state.input_message = ""
 if "output_message" not in st.session_state:
