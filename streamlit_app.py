@@ -60,7 +60,7 @@ def process_character(char):
     encrypted_char = encrypt_character(
         char, rotor1, rotor2, rotor3, reflector, st.session_state.plugboard
     )
-    
+
     st.session_state.input_message += char
     st.session_state.output_message += encrypted_char
 
@@ -131,26 +131,31 @@ if not st.session_state.is_locked and st.button("Set Posisi Rotor"):
 st.subheader("Konfigurasi Plugboard (Klik Dua Huruf untuk Memasangkan)")
 cols = st.columns(13)
 alphabet = string.ascii_uppercase
+
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    # Warna berdasarkan pasangan di plugboard
     if char in st.session_state.plugboard:
         pair_char = st.session_state.plugboard[char]
         if pair_char in alphabet:
-            color = plugboard_colors[alphabet.index(pair_char)]
+            color = plugboard_colors[alphabet.index(pair_char) % len(plugboard_colors)]
         else:
-            color = "white"  # Default warna jika pasangan tidak valid
+            color = "white"
     else:
         color = "white"
+    
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
             if len(st.session_state.selected_plugboard) == 2:
                 a, b = st.session_state.selected_plugboard
-                st.session_state.plugboard[a] = b
-                st.session_state.plugboard[b] = a
+                if a != b and a in alphabet and b in alphabet:
+                    st.session_state.plugboard[a] = b
+                    st.session_state.plugboard[b] = a
                 st.session_state.selected_plugboard = []
-    col.markdown(f"<div style='background-color: {color}; text-align: center;'>{char}</div>", unsafe_allow_html=True)
+    col.markdown(
+        f"<div style='background-color: {color}; text-align: center;'>{char}</div>",
+        unsafe_allow_html=True,
+    )
 
 if not st.session_state.is_locked and st.button("Reset Plugboard"):
     st.session_state.plugboard.clear()
