@@ -35,11 +35,11 @@ def encrypt_character(char, rotor1, rotor2, rotor3, reflector, plugboard):
 
 # Inisialisasi State
 if "rotor_pos1" not in st.session_state:
-    st.session_state.rotor_pos1 = 1
+    st.session_state.rotor_pos1 = 0  # Dimulai dari 0 agar bergerak di input pertama
 if "rotor_pos2" not in st.session_state:
-    st.session_state.rotor_pos2 = 1
+    st.session_state.rotor_pos2 = 0
 if "rotor_pos3" not in st.session_state:
-    st.session_state.rotor_pos3 = 1
+    st.session_state.rotor_pos3 = 0
 if "input_message" not in st.session_state:
     st.session_state.input_message = ""
 if "output_message" not in st.session_state:
@@ -134,8 +134,7 @@ cols = st.columns(13)
 alphabet = string.ascii_uppercase
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    pair = next(((k, v) for k, v in st.session_state.plugboard.items() if k == char or v == char), None)
-    color = plugboard_colors[i % len(plugboard_colors)] if pair else "white"
+    color = next((plugboard_colors[i] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
