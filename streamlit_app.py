@@ -111,14 +111,12 @@ def delete_last_character():
 
 # Fungsi untuk Mengunci/Membuka Kunci
 def toggle_lock():
-    if st.session_state.is_locked:
-        st.session_state.is_locked = False
+    st.session_state.is_locked = not st.session_state.is_locked
+    if not st.session_state.is_locked:
         st.session_state.input_message = ""
         st.session_state.output_message = ""
         st.session_state.is_first_input = True
         st.session_state.is_first_delete = True
-    else:
-        st.session_state.is_locked = True
 
 # Judul
 st.title("Enigma Machine with Correct Rotor Movement")
@@ -152,17 +150,13 @@ cols = st.columns(13)
 alphabet = string.ascii_uppercase
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    # Warna berdasarkan pasangan di plugboard
     if char in st.session_state.plugboard:
         pair_char = st.session_state.plugboard[char]
-        if pair_char in alphabet:
-            color = plugboard_colors[alphabet.index(pair_char)]
-        else:
-            color = "white"  # Warna default jika pasangan tidak valid
+        color = plugboard_colors[alphabet.index(pair_char)]
     else:
         color = "white"
     if not st.session_state.is_locked:
-        if col.button(char, key=f"plugboard_button_{char}"):
+        if col.button(char):
             st.session_state.selected_plugboard.append(char)
             if len(st.session_state.selected_plugboard) == 2:
                 a, b = st.session_state.selected_plugboard
@@ -180,7 +174,7 @@ cols = st.columns(13)
 if st.session_state.is_locked:
     for i, char in enumerate(alphabet):
         col = cols[i % 13]
-        if col.button(char, key=f"input_button_{char}"):
+        if col.button(char):
             process_character(char)
 
 # Tombol Hapus
