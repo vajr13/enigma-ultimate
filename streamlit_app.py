@@ -11,7 +11,8 @@ reflector = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 plugboard_colors = [
     "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", 
     "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9", 
-    "#F39C12", "#D35400", "#34495E"
+    "#F39C12", "#D35400", "#34495E", "#F4D03F", "#7D3C98", 
+    "#1F618D", "#117A65", "#E74C3C", "#A93226", "#D5DBDB"
 ]
 
 # Fungsi untuk Rotor dan Plugboard
@@ -53,7 +54,6 @@ if "selected_plugboard" not in st.session_state:
 
 # Fungsi untuk Memproses Satu Karakter
 def process_character(char):
-    # Pergerakan Rotor 1 Sebelum Proses Enkripsi
     st.session_state.rotor_pos1 += 1
     if st.session_state.rotor_pos1 > 26:
         st.session_state.rotor_pos1 = 1
@@ -80,7 +80,6 @@ def delete_last_character():
         st.session_state.input_message = st.session_state.input_message[:-1]
         st.session_state.output_message = st.session_state.output_message[:-1]
 
-        # Putar rotor mundur
         st.session_state.rotor_pos1 -= 1
         if st.session_state.rotor_pos1 < 1:
             st.session_state.rotor_pos1 = 26
@@ -132,7 +131,10 @@ cols = st.columns(13)
 alphabet = string.ascii_uppercase
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    color = next((plugboard_colors[i] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
+    color = next(
+        (plugboard_colors[i % len(plugboard_colors)] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char),
+        "white"
+    )
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
