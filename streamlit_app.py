@@ -9,8 +9,8 @@ reflector = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
 # Warna untuk Plugboard
 plugboard_colors = [
-    "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", 
-    "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9", 
+    "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6",
+    "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9",
     "#F39C12", "#D35400", "#34495E"
 ]
 
@@ -139,7 +139,7 @@ for i, char in enumerate(alphabet):
         if pair_char in alphabet:
             color = plugboard_colors[alphabet.index(pair_char)]
         else:
-            color = "white"
+            color = "white"  # Default warna jika pasangan tidak valid
     else:
         color = "white"
     if not st.session_state.is_locked:
