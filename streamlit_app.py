@@ -136,7 +136,10 @@ for i, char in enumerate(alphabet):
     # Warna berdasarkan pasangan di plugboard
     if char in st.session_state.plugboard:
         pair_char = st.session_state.plugboard[char]
-        color = plugboard_colors[alphabet.index(pair_char)]
+        if pair_char in alphabet:
+            color = plugboard_colors[alphabet.index(pair_char)]
+        else:
+            color = "white"
     else:
         color = "white"
     if not st.session_state.is_locked:
