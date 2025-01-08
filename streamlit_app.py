@@ -145,3 +145,4 @@ with col1:
     st.text_area("Teks Input", value=st.session_state.input_message, height=200)
 with col2:
     st.text_area("Teks Output (Terenkripsi)", value=st.session_state.output_message, height=200)
+    st.experimental_rerun()
