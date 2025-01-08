@@ -7,6 +7,13 @@ rotor_2 = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
 rotor_3 = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
 reflector = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
+# Warna untuk Plugboard
+plugboard_colors = [
+    "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", 
+    "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9", 
+    "#F39C12", "#D35400", "#34495E"
+]
+
 # Fungsi untuk Rotor dan Plugboard
 def rotate(rotor, offset):
     return rotor[offset:] + rotor[:offset]
@@ -75,7 +82,7 @@ def toggle_lock():
         st.session_state.is_locked = True
 
 # Judul
-st.title("Enigma Machine with Lock/Unlock Feature")
+st.title("Enigma Machine with Lock/Unlock and Plugboard Monitoring")
 
 # Tombol Lock/Unlock
 if st.session_state.is_locked:
@@ -89,11 +96,11 @@ else:
 st.subheader("Setel dan Monitoring Posisi Rotor (1-26)")
 col1, col2, col3 = st.columns(3)
 with col1:
-    rotor1_input = st.number_input("Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1)
+    rotor1_input = st.number_input("Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1, disabled=st.session_state.is_locked)
 with col2:
-    rotor2_input = st.number_input("Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1)
+    rotor2_input = st.number_input("Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1, disabled=st.session_state.is_locked)
 with col3:
-    rotor3_input = st.number_input("Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1)
+    rotor3_input = st.number_input("Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1, disabled=st.session_state.is_locked)
 
 if not st.session_state.is_locked and st.button("Set Posisi Rotor"):
     st.session_state.rotor_pos1 = rotor1_input
@@ -104,13 +111,20 @@ if not st.session_state.is_locked and st.button("Set Posisi Rotor"):
 st.subheader("Konfigurasi Plugboard (Klik Dua Huruf untuk Memasangkan)")
 cols = st.columns(13)
 alphabet = string.ascii_uppercase
+selected = []
+
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
     paired_char = st.session_state.plugboard.get(char, "")
-    col.markdown(f"<div style='text-align: center; font-size: 1.5em;'>{paired_char}</div>", unsafe_allow_html=True)
-    if not st.session_state.is_locked and col.button(char):
-        if char in st.session_state.plugboard:
-            del st.session_state.plugboard[char]
+    color = next((plugboard_colors[i] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
+    if not st.session_state.is_locked:
+        if col.button(char):
+            selected.append(char)
+            if len(selected) == 2:
+                st.session_state.plugboard[selected[0]] = selected[1]
+                st.session_state.plugboard[selected[1]] = selected[0]
+                selected = []
+    col.markdown(f"<div style='background-color: {color}; text-align: center;'>{char}</div>", unsafe_allow_html=True)
 
 if not st.session_state.is_locked and st.button("Reset Plugboard"):
     st.session_state.plugboard.clear()
@@ -131,4 +145,3 @@ with col1:
     st.text_area("Teks Input", value=st.session_state.input_message, height=200)
 with col2:
     st.text_area("Teks Output (Terenkripsi)", value=st.session_state.output_message, height=200)
-
