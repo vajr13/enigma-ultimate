@@ -7,13 +7,6 @@ rotor_2 = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
 rotor_3 = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
 reflector = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
-# Warna untuk Plugboard
-plugboard_colors = [
-    "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6",
-    "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9",
-    "#F39C12", "#D35400", "#34495E"
-]
-
 # Fungsi untuk Rotor dan Plugboard
 def rotate(rotor, offset):
     return rotor[offset:] + rotor[:offset]
@@ -48,11 +41,27 @@ if "plugboard" not in st.session_state:
     st.session_state.plugboard = {}
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
-if "selected_plugboard" not in st.session_state:
-    st.session_state.selected_plugboard = []
+if "is_first_input" not in st.session_state:
+    st.session_state.is_first_input = True
+if "is_first_delete" not in st.session_state:
+    st.session_state.is_first_delete = True
 
 # Fungsi untuk Memproses Satu Karakter
 def process_character(char):
+    # Naikkan rotor 1 sebelum memproses karakter jika ini input pertama
+    if st.session_state.is_first_input:
+        st.session_state.rotor_pos1 += 1
+        if st.session_state.rotor_pos1 > 26:
+            st.session_state.rotor_pos1 = 1
+            st.session_state.rotor_pos2 += 1
+            if st.session_state.rotor_pos2 > 26:
+                st.session_state.rotor_pos2 = 1
+                st.session_state.rotor_pos3 += 1
+                if st.session_state.rotor_pos3 > 26:
+                    st.session_state.rotor_pos3 = 1
+        st.session_state.is_first_input = False
+
+    # Enkripsi karakter
     rotor1 = rotate(rotor_1, st.session_state.rotor_pos1 - 1)
     rotor2 = rotate(rotor_2, st.session_state.rotor_pos2 - 1)
     rotor3 = rotate(rotor_3, st.session_state.rotor_pos3 - 1)
@@ -78,10 +87,10 @@ def process_character(char):
 # Fungsi untuk Menghapus Karakter Terakhir
 def delete_last_character():
     if st.session_state.input_message:
-        st.session_state.input_message = st.session_state.input_message[:-1]
-        st.session_state.output_message = st.session_state.output_message[:-1]
-
-        if len(st.session_state.input_message) > 0:
+        # Pastikan rotor bergerak turun hanya jika karakter sudah diinput sebelumnya
+        if st.session_state.is_first_delete:
+            st.session_state.is_first_delete = False
+        else:
             st.session_state.rotor_pos1 -= 1
             if st.session_state.rotor_pos1 < 1:
                 st.session_state.rotor_pos1 = 26
@@ -92,12 +101,17 @@ def delete_last_character():
                     if st.session_state.rotor_pos3 < 1:
                         st.session_state.rotor_pos3 = 26
 
+        st.session_state.input_message = st.session_state.input_message[:-1]
+        st.session_state.output_message = st.session_state.output_message[:-1]
+
 # Fungsi untuk Mengunci/Membuka Kunci
 def toggle_lock():
     if st.session_state.is_locked:
         st.session_state.is_locked = False
         st.session_state.input_message = ""
         st.session_state.output_message = ""
+        st.session_state.is_first_input = True
+        st.session_state.is_first_delete = True
     else:
         st.session_state.is_locked = True
 
@@ -127,42 +141,10 @@ if not st.session_state.is_locked and st.button("Set Posisi Rotor"):
     st.session_state.rotor_pos2 = rotor2_input
     st.session_state.rotor_pos3 = rotor3_input
 
-# Konfigurasi Plugboard
-st.subheader("Konfigurasi Plugboard (Klik Dua Huruf untuk Memasangkan)")
-cols = st.columns(13)
-alphabet = string.ascii_uppercase
-
-for i, char in enumerate(alphabet):
-    col = cols[i % 13]
-    if char in st.session_state.plugboard:
-        pair_char = st.session_state.plugboard[char]
-        if pair_char in alphabet:
-            color = plugboard_colors[alphabet.index(pair_char) % len(plugboard_colors)]
-        else:
-            color = "white"
-    else:
-        color = "white"
-    
-    if not st.session_state.is_locked:
-        if col.button(char):
-            st.session_state.selected_plugboard.append(char)
-            if len(st.session_state.selected_plugboard) == 2:
-                a, b = st.session_state.selected_plugboard
-                if a != b and a in alphabet and b in alphabet:
-                    st.session_state.plugboard[a] = b
-                    st.session_state.plugboard[b] = a
-                st.session_state.selected_plugboard = []
-    col.markdown(
-        f"<div style='background-color: {color}; text-align: center;'>{char}</div>",
-        unsafe_allow_html=True,
-    )
-
-if not st.session_state.is_locked and st.button("Reset Plugboard"):
-    st.session_state.plugboard.clear()
-
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
 cols = st.columns(13)
+alphabet = string.ascii_uppercase
 if st.session_state.is_locked:
     for i, char in enumerate(alphabet):
         col = cols[i % 13]
