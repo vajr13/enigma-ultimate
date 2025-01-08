@@ -53,7 +53,18 @@ if "selected_plugboard" not in st.session_state:
 
 # Fungsi untuk Memproses Satu Karakter
 def process_character(char):
-    # Rotor 1 bergerak sebelum memproses karakter
+    rotor1 = rotate(rotor_1, st.session_state.rotor_pos1 - 1)
+    rotor2 = rotate(rotor_2, st.session_state.rotor_pos2 - 1)
+    rotor3 = rotate(rotor_3, st.session_state.rotor_pos3 - 1)
+
+    encrypted_char = encrypt_character(
+        char, rotor1, rotor2, rotor3, reflector, st.session_state.plugboard
+    )
+    
+    st.session_state.input_message += char
+    st.session_state.output_message += encrypted_char
+
+    # Pergerakan rotor setelah input diproses
     st.session_state.rotor_pos1 += 1
     if st.session_state.rotor_pos1 > 26:
         st.session_state.rotor_pos1 = 1
@@ -64,34 +75,22 @@ def process_character(char):
             if st.session_state.rotor_pos3 > 26:
                 st.session_state.rotor_pos3 = 1
 
-    # Update posisi rotor setelah pergerakan
-    rotor1 = rotate(rotor_1, st.session_state.rotor_pos1 - 1)
-    rotor2 = rotate(rotor_2, st.session_state.rotor_pos2 - 1)
-    rotor3 = rotate(rotor_3, st.session_state.rotor_pos3 - 1)
-
-    # Enkripsi karakter
-    encrypted_char = encrypt_character(
-        char, rotor1, rotor2, rotor3, reflector, st.session_state.plugboard
-    )
-    st.session_state.input_message += char
-    st.session_state.output_message += encrypted_char
-
 # Fungsi untuk Menghapus Karakter Terakhir
 def delete_last_character():
     if st.session_state.input_message:
         st.session_state.input_message = st.session_state.input_message[:-1]
         st.session_state.output_message = st.session_state.output_message[:-1]
 
-        # Putar rotor mundur
-        st.session_state.rotor_pos1 -= 1
-        if st.session_state.rotor_pos1 < 1:
-            st.session_state.rotor_pos1 = 26
-            st.session_state.rotor_pos2 -= 1
-            if st.session_state.rotor_pos2 < 1:
-                st.session_state.rotor_pos2 = 26
-                st.session_state.rotor_pos3 -= 1
-                if st.session_state.rotor_pos3 < 1:
-                    st.session_state.rotor_pos3 = 26
+        if len(st.session_state.input_message) > 0:
+            st.session_state.rotor_pos1 -= 1
+            if st.session_state.rotor_pos1 < 1:
+                st.session_state.rotor_pos1 = 26
+                st.session_state.rotor_pos2 -= 1
+                if st.session_state.rotor_pos2 < 1:
+                    st.session_state.rotor_pos2 = 26
+                    st.session_state.rotor_pos3 -= 1
+                    if st.session_state.rotor_pos3 < 1:
+                        st.session_state.rotor_pos3 = 26
 
 # Fungsi untuk Mengunci/Membuka Kunci
 def toggle_lock():
@@ -103,7 +102,7 @@ def toggle_lock():
         st.session_state.is_locked = True
 
 # Judul
-st.title("Enigma Machine with Real-Time Plugboard Colors and Rotor Fix")
+st.title("Enigma Machine with Correct Rotor Movement")
 
 # Tombol Lock/Unlock
 if st.session_state.is_locked:
@@ -134,7 +133,7 @@ cols = st.columns(13)
 alphabet = string.ascii_uppercase
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    color = next((plugboard_colors[i % len(plugboard_colors)] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
+    color = next((plugboard_colors[i] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
