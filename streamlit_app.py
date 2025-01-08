@@ -72,6 +72,23 @@ def process_character(char):
             if st.session_state.rotor_pos3 > 26:
                 st.session_state.rotor_pos3 = 1
 
+# Fungsi untuk Menghapus Karakter Terakhir
+def delete_last_character():
+    if st.session_state.input_message:
+        st.session_state.input_message = st.session_state.input_message[:-1]
+        st.session_state.output_message = st.session_state.output_message[:-1]
+
+        # Putar rotor mundur
+        st.session_state.rotor_pos1 -= 1
+        if st.session_state.rotor_pos1 < 1:
+            st.session_state.rotor_pos1 = 26
+            st.session_state.rotor_pos2 -= 1
+            if st.session_state.rotor_pos2 < 1:
+                st.session_state.rotor_pos2 = 26
+                st.session_state.rotor_pos3 -= 1
+                if st.session_state.rotor_pos3 < 1:
+                    st.session_state.rotor_pos3 = 26
+
 # Fungsi untuk Mengunci/Membuka Kunci
 def toggle_lock():
     if st.session_state.is_locked:
@@ -82,7 +99,7 @@ def toggle_lock():
         st.session_state.is_locked = True
 
 # Judul
-st.title("Enigma Machine with Lock/Unlock and Plugboard Monitoring")
+st.title("Enigma Machine with Improved Plugboard and Rotor Lock")
 
 # Tombol Lock/Unlock
 if st.session_state.is_locked:
@@ -137,6 +154,10 @@ if st.session_state.is_locked:
         col = cols[i % 13]
         if col.button(char):
             process_character(char)
+
+# Tombol Hapus
+if st.button("Hapus Karakter Terakhir"):
+    delete_last_character()
 
 # Pesan Input dan Output
 st.subheader("Pesan Input dan Output")
