@@ -57,7 +57,6 @@ if "is_first_delete" not in st.session_state:
 
 # Fungsi untuk Memproses Satu Karakter
 def process_character(char):
-    # Naikkan rotor 1 sebelum memproses karakter jika ini input pertama
     if st.session_state.is_first_input:
         st.session_state.rotor_pos1 += 1
         if st.session_state.rotor_pos1 > 26:
@@ -70,7 +69,6 @@ def process_character(char):
                     st.session_state.rotor_pos3 = 1
         st.session_state.is_first_input = False
 
-    # Enkripsi karakter
     rotor1 = rotate(rotor_1, st.session_state.rotor_pos1 - 1)
     rotor2 = rotate(rotor_2, st.session_state.rotor_pos2 - 1)
     rotor3 = rotate(rotor_3, st.session_state.rotor_pos3 - 1)
@@ -82,7 +80,6 @@ def process_character(char):
     st.session_state.input_message += char
     st.session_state.output_message += encrypted_char
 
-    # Pergerakan rotor setelah input diproses
     st.session_state.rotor_pos1 += 1
     if st.session_state.rotor_pos1 > 26:
         st.session_state.rotor_pos1 = 1
@@ -96,7 +93,6 @@ def process_character(char):
 # Fungsi untuk Menghapus Karakter Terakhir
 def delete_last_character():
     if st.session_state.input_message:
-        # Pastikan rotor bergerak turun hanya jika karakter sudah diinput sebelumnya
         if st.session_state.is_first_delete:
             st.session_state.is_first_delete = False
         else:
@@ -159,11 +155,14 @@ for i, char in enumerate(alphabet):
     # Warna berdasarkan pasangan di plugboard
     if char in st.session_state.plugboard:
         pair_char = st.session_state.plugboard[char]
-        color = plugboard_colors[alphabet.index(pair_char)]
+        if pair_char in alphabet:
+            color = plugboard_colors[alphabet.index(pair_char)]
+        else:
+            color = "white"  # Warna default jika pasangan tidak valid
     else:
         color = "white"
     if not st.session_state.is_locked:
-        if col.button(char, key=f"plugboard_{char}"):
+        if col.button(char, key=f"plugboard_button_{char}"):
             st.session_state.selected_plugboard.append(char)
             if len(st.session_state.selected_plugboard) == 2:
                 a, b = st.session_state.selected_plugboard
@@ -181,7 +180,7 @@ cols = st.columns(13)
 if st.session_state.is_locked:
     for i, char in enumerate(alphabet):
         col = cols[i % 13]
-        if col.button(char, key=f"input_{char}"):
+        if col.button(char, key=f"input_button_{char}"):
             process_character(char)
 
 # Tombol Hapus
