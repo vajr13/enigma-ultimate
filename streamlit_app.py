@@ -7,21 +7,12 @@ rotor_2 = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
 rotor_3 = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
 reflector = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
-# Warna tetap untuk setiap huruf dalam plugboard
-plugboard_colors = {
-    char: color
-    for char, color in zip(
-        string.ascii_uppercase,
-        [
-            "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", 
-            "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9", 
-            "#F39C12", "#D35400", "#34495E", "#2ECC71", "#E67E22", 
-            "#9B59B6", "#3498DB", "#C0392B", "#16A085", "#8E44AD", 
-            "#F4D03F", "#5DADE2", "#F1948A", "#45B39D", "#7FB3D5", 
-            "#E59866",
-        ],
-    )
-}
+# Warna untuk Plugboard
+plugboard_colors = [
+    "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", 
+    "#1ABC9C", "#E74C3C", "#8E44AD", "#27AE60", "#2980B9", 
+    "#F39C12", "#D35400", "#34495E"
+]
 
 # Fungsi untuk Rotor dan Plugboard
 def rotate(rotor, offset):
@@ -111,7 +102,7 @@ def toggle_lock():
         st.session_state.is_locked = True
 
 # Judul
-st.title("Enigma Machine with Fixed Plugboard Colors")
+st.title("Enigma Machine with Correct Rotor Movement")
 
 # Tombol Lock/Unlock
 if st.session_state.is_locked:
@@ -142,7 +133,7 @@ cols = st.columns(13)
 alphabet = string.ascii_uppercase
 for i, char in enumerate(alphabet):
     col = cols[i % 13]
-    color = plugboard_colors[char]
+    color = next((plugboard_colors[i] for i, (k, v) in enumerate(st.session_state.plugboard.items()) if k == char or v == char), "white")
     if not st.session_state.is_locked:
         if col.button(char):
             st.session_state.selected_plugboard.append(char)
