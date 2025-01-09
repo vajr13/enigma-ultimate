@@ -74,7 +74,7 @@ def process_character(char):
             st.session_state.rotor_pos3 += 1
             if st.session_state.rotor_pos3 > 26:
                 st.session_state.rotor_pos3 = 1
-st.experimental_rerun()
+    st.experimental_rerun()
 
 # Fungsi untuk Reset Plugboard
 def reset_plugboard():
