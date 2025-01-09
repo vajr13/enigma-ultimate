@@ -74,21 +74,15 @@ def process_character(char):
             st.session_state.rotor_pos3 += 1
             if st.session_state.rotor_pos3 > 26:
                 st.session_state.rotor_pos3 = 1
-    st.experimental_rerun()
 
-# Fungsi untuk Reset Plugboard
-def reset_plugboard():
-    st.session_state.plugboard.clear()
-    st.session_state.selected_plugboard = []
-
-# Fungsi untuk Menambah Pasangan Plugboard
-def add_plugboard_pair(char):
-    st.session_state.selected_plugboard.append(char)
-    if len(st.session_state.selected_plugboard) == 2:
-        a, b = st.session_state.selected_plugboard
-        st.session_state.plugboard[a] = b
-        st.session_state.plugboard[b] = a
-        st.session_state.selected_plugboard = []
+# Fungsi untuk Menangani Tombol Karakter Input
+def handle_input_character():
+    alphabet = string.ascii_uppercase
+    for char in alphabet:
+        if st.button(char):
+            process_character(char)
+            # Memanggil rerun hanya setelah karakter diproses
+            st.experimental_rerun()  # Ini harus dipanggil setelah karakter diproses
 
 # Judul
 st.title("Enigma Machine with Real-Time Output")
@@ -132,12 +126,9 @@ if not st.session_state.is_locked and st.button("Reset Plugboard"):
 
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
-cols = st.columns(13)
-if st.session_state.is_locked:
-    for i, char in enumerate(alphabet):
-        col = cols[i % 13]
-        if col.button(char):
-            process_character(char)
+
+# Fungsi untuk menangani input karakter
+handle_input_character()  # Memproses input dan memanggil rerun jika perlu
 
 # Pesan Input dan Output
 st.subheader("Pesan Input dan Output")
