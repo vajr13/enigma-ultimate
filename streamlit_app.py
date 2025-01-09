@@ -97,19 +97,24 @@ if st.button("Toggle Lock"):
     st.session_state.is_locked = not st.session_state.is_locked
 
 # Setel dan Monitoring Posisi Rotor
-st.subheader("Setel dan Monitoring Posisi Rotor (1-26)")
 col1, col2, col3 = st.columns(3)
 with col1:
+    # Perbarui posisi rotor pertama sesuai dengan yang ada di session state
     rotor1_input = st.number_input("Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1, disabled=st.session_state.is_locked)
+    # Setelah input, jika rotor tidak terkunci, update session_state
+    if not st.session_state.is_locked and rotor1_input != st.session_state.rotor_pos1:
+        st.session_state.rotor_pos1 = rotor1_input
+
 with col2:
     rotor2_input = st.number_input("Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1, disabled=st.session_state.is_locked)
+    if not st.session_state.is_locked and rotor2_input != st.session_state.rotor_pos2:
+        st.session_state.rotor_pos2 = rotor2_input
+
 with col3:
     rotor3_input = st.number_input("Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1, disabled=st.session_state.is_locked)
+    if not st.session_state.is_locked and rotor3_input != st.session_state.rotor_pos3:
+        st.session_state.rotor_pos3 = rotor3_input
 
-if not st.session_state.is_locked and st.button("Set Posisi Rotor"):
-    st.session_state.rotor_pos1 = rotor1_input
-    st.session_state.rotor_pos2 = rotor2_input
-    st.session_state.rotor_pos3 = rotor3_input
 
 # Konfigurasi Plugboard
 st.subheader("Konfigurasi Plugboard")
@@ -145,11 +150,3 @@ with col1:
     st.text_area("Teks Input", value=st.session_state.input_message, height=200)
 with col2:
     st.text_area("Teks Output (Terenkripsi)", value=st.session_state.output_message, height=200)
-
-# Memperbarui kolom rotor agar selalu sinkron dengan nilai di session_state
-with col1:
-    st.session_state.rotor_pos1 = rotor1_input
-with col2:
-    st.session_state.rotor_pos2 = rotor2_input
-with col3:
-    st.session_state.rotor_pos3 = rotor3_input
