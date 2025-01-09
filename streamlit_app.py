@@ -75,14 +75,25 @@ def process_character(char):
             if st.session_state.rotor_pos3 > 26:
                 st.session_state.rotor_pos3 = 1
 
-# Fungsi untuk Menangani Tombol Karakter Input
-def handle_input_character():
-    alphabet = string.ascii_uppercase
-    for char in alphabet:
-        if st.button(char):
-            process_character(char)
-            # Memanggil rerun hanya setelah karakter diproses
-            st.experimental_rerun()  # Ini harus dipanggil setelah karakter diproses
+# Fungsi untuk Menambah Pasangan Plugboard
+def add_plugboard_pair(char):
+    # Pastikan hanya ada dua karakter dalam pasangan yang dipilih
+    if char not in st.session_state.selected_plugboard:
+        st.session_state.selected_plugboard.append(char)
+
+    # Jika sudah ada dua karakter dalam pasangan, tambahkan ke plugboard
+    if len(st.session_state.selected_plugboard) == 2:
+        a, b = st.session_state.selected_plugboard
+        # Jangan memasukkan pasangan yang sudah ada di plugboard
+        if a != b and a not in st.session_state.plugboard and b not in st.session_state.plugboard:
+            st.session_state.plugboard[a] = b
+            st.session_state.plugboard[b] = a
+        st.session_state.selected_plugboard = []
+
+# Fungsi untuk Reset Plugboard
+def reset_plugboard():
+    st.session_state.plugboard.clear()
+    st.session_state.selected_plugboard = []
 
 # Judul
 st.title("Enigma Machine with Real-Time Output")
@@ -126,9 +137,14 @@ if not st.session_state.is_locked and st.button("Reset Plugboard"):
 
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
-
-# Fungsi untuk menangani input karakter
-handle_input_character()  # Memproses input dan memanggil rerun jika perlu
+cols = st.columns(13)
+if st.session_state.is_locked:
+    for i, char in enumerate(alphabet):
+        col = cols[i % 13]
+        if col.button(char):
+            process_character(char)
+            # Refresh tampilan
+            st.experimental_rerun()
 
 # Pesan Input dan Output
 st.subheader("Pesan Input dan Output")
