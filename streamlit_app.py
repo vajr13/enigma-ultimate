@@ -145,3 +145,11 @@ with col1:
     st.text_area("Teks Input", value=st.session_state.input_message, height=200)
 with col2:
     st.text_area("Teks Output (Terenkripsi)", value=st.session_state.output_message, height=200)
+
+# Memperbarui kolom rotor agar selalu sinkron dengan nilai di session_state
+with col1:
+    st.session_state.rotor_pos1 = rotor1_input
+with col2:
+    st.session_state.rotor_pos2 = rotor2_input
+with col3:
+    st.session_state.rotor_pos3 = rotor3_input
