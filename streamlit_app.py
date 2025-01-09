@@ -96,15 +96,17 @@ st.title("Enigma Machine with Real-Time Output")
 if st.button("Toggle Lock"):
     st.session_state.is_locked = not st.session_state.is_locked
 
-# Setel dan Monitoring Posisi Rotor
 st.subheader("Setel dan Monitoring Posisi Rotor (1-26)")
 col1, col2, col3 = st.columns(3)
 with col1:
     rotor1_input = st.number_input("Rotor 1", min_value=1, max_value=26, value=st.session_state.rotor_pos1, step=1, disabled=st.session_state.is_locked)
+    st.markdown(f"**Posisi Rotor 1:** {st.session_state.rotor_pos1}")
 with col2:
     rotor2_input = st.number_input("Rotor 2", min_value=1, max_value=26, value=st.session_state.rotor_pos2, step=1, disabled=st.session_state.is_locked)
+    st.markdown(f"**Posisi Rotor 2:** {st.session_state.rotor_pos2}")
 with col3:
     rotor3_input = st.number_input("Rotor 3", min_value=1, max_value=26, value=st.session_state.rotor_pos3, step=1, disabled=st.session_state.is_locked)
+    st.markdown(f"**Posisi Rotor 3:** {st.session_state.rotor_pos3}")
 
 if not st.session_state.is_locked and st.button("Set Posisi Rotor"):
     st.session_state.rotor_pos1 = rotor1_input
