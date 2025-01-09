@@ -138,13 +138,11 @@ if not st.session_state.is_locked and st.button("Reset Plugboard"):
 # Input Karakter melalui Tombol
 st.subheader("Input Karakter (A-Z)")
 cols = st.columns(13)
-if st.session_state.is_locked:
+if not st.session_state.is_locked:
     for i, char in enumerate(alphabet):
         col = cols[i % 13]
         if col.button(char):
             process_character(char)
-            # Refresh tampilan
-            st.experimental_rerun()
 
 # Pesan Input dan Output
 st.subheader("Pesan Input dan Output")
@@ -153,3 +151,9 @@ with col1:
     st.text_area("Teks Input", value=st.session_state.input_message, height=200)
 with col2:
     st.text_area("Teks Output (Terenkripsi)", value=st.session_state.output_message, height=200)
+
+# Menampilkan posisi rotor terbaru
+st.subheader("Posisi Rotor Terbaru")
+st.write(f"Rotor 1: {st.session_state.rotor_pos1}")
+st.write(f"Rotor 2: {st.session_state.rotor_pos2}")
+st.write(f"Rotor 3: {st.session_state.rotor_pos3}")
